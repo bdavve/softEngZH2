@@ -11,11 +11,11 @@ Egy `Web API` és egy `Windows Forms` applikáció a __jelenlegi TOP 5 labdarúg
 
 #### Web API: 
 
-Egy felhasználó van, az `index.html`-en található navigációs gombok lenyomásakor a backend lekéri az `Azure`-ban lévő adatbázisból az adott liga csapatait, vagy az összes játékos adatait. 
+>Egy felhasználó van, az `index.html`-en található navigációs gombok lenyomásakor a backend lekéri az `Azure`-ban lévő adatbázisból az adott liga csapatait, vagy az összes játékos adatait. 
 
 #### Windows forms: 
 
-Az adatok betöltése szintán `Azure` szerveren lévő adatbázison keresztül történik. Az alkalmazásban lehetőség van a játékosok törlésére is. 
+>Az adatok betöltése szintán `Azure` szerveren lévő adatbázison keresztül történik. Az alkalmazásban lehetőség van a játékosok törlésére is. 
 
 ## Hozott anyagok:
 
@@ -37,10 +37,13 @@ Részösszeg: `7p`
 
 ![Weboldal](web.gif)
 * `1p` A weboldalnak van egy értelmezhető struktúrája
+   * A `body` két részre van osztva:
+      * A `navbar` lehetőséget ad választani az oldal funkciói között
+      * A `main` részt tölti fel adatokkal a `vizsga.js`
 * `1p` A weboldal dinamikus tartalommal tölthető fel adatbázison keresztül
 * `1p` A weboldal használ legalább 20 sor értelmes css-t
 * `1p` A weboldal javascriptje más funkciót is ellát, mint az adatok betöltése
-    * A javascript figyeli a navbar gombjainak `mouseout`, `mousein` és `click` eseményeit, és megfelelő színre módosítja a `body` hátterét és szövegszínét. 
+   * A javascript figyeli a navbar gombjainak `mouseout`, `mousein` és `click` eseményeit, és megfelelő színre módosítja a `body` hátterét és szövegszínét. 
 
 Részösszeg: `4p`
 
@@ -53,9 +56,44 @@ __Eddig:__ `11p`
 ![API végpontok](api.gif)
 * `2p` program.cs beállítása wwwroot mappában tárolt statikus tartalmak megosztására
 * `1p` Scaffold-DbContext használata (ajándék)
-* `3p` Teljes SQL tábla adatainak szolgáltatása API végponton keresztül
-* `2p` SQL tábla egy választható rekordjának szolgáltatása API végponton keresztül
 
+```
+Scaffold-DbContext 'Server=tcp:sqlfc24.database.windows.net,1433;Initial Catalog=FC24;Persist Security Info=False;User ID=b.davve1204;Password=Password12345;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Context fc24Context -Force
+```
+
+* `3p` Teljes SQL tábla adatainak szolgáltatása API végponton keresztül
+``` csharp
+[HttpGet]
+[Route("/players/all")]
+public IActionResult getAllPlayers()
+{
+    Models.fc24Context context = new Models.fc24Context();
+    var players = from x in context.Players
+                  select new
+                  { 
+                      x.Name, x.Nation, x.Club, x.Position, x.Age, x.Overall, x.Pace, x.Shooting, x.Passing, x.Dribbling, 
+                      x.Defending, x.Physicality, x.AttWorkRate, x.DefWorkRate, x.PreferredFoot, x.WeakFoot, x.SkillMoves, x.Url
+                  };
+
+    return Ok(players);
+}
+```
+* `2p` SQL tábla egy választható rekordjának szolgáltatása API végponton keresztül
+```
+[HttpGet]
+[Route("leagues/{league}")]
+public ActionResult getLeage(string league)
+{
+    Models.fc24Context context = new Models.fc24Context();
+    var liga = from x in context.Teams
+               where x.League == league
+               select x.Name;
+
+    if (liga == null) return BadRequest("Nincs ilyen nevű liga");
+
+    return Ok(liga);
+}
+```
 Részösszeg: `8p`
 
 __Eddig:__ `19p`
@@ -84,6 +122,24 @@ __Eddig:__ `19p`
          " | Position(s): " + lista[i].position + 
          " | Age: " + lista[i].age + 
          " | Overall: " + lista[i].overall;
+         document.getElementById("main").appendChild(újElem);
+     }
+ }
+```
+``` javascript
+ function listL(liga) {
+     fetch(`/leagues/${liga}`)
+         .then(response => response.json())
+         .then(data => kiíratásLiga(data)
+         );
+ }
+
+ function kiíratásLiga(ligak) {
+     console.log(ligak)
+     document.getElementById("main").innerHTML = "";
+     for (var i = 0; i < ligak.length; i++) {
+         let újElem = document.createElement("div");
+         újElem.innerText = ligak[i];
          document.getElementById("main").appendChild(újElem);
      }
  }
