@@ -78,8 +78,9 @@ public IActionResult getAllPlayers()
     return Ok(players);
 }
 ```
+
 * `2p` SQL tábla egy választható rekordjának szolgáltatása API végponton keresztül
-```
+``` csharp
 [HttpGet]
 [Route("leagues/{league}")]
 public ActionResult getLeage(string league)
