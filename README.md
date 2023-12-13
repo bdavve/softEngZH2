@@ -15,7 +15,7 @@ Egy `Web API` és egy `Windows Forms` applikáció a __jelenlegi TOP 5 labdarúg
 
 #### Windows forms: 
 
->Az adatok betöltése szintán `Azure` szerveren lévő adatbázison keresztül történik. Az alkalmazásban lehetőség van a játékosok törlésére is. 
+>Az adatok betöltése szintén `Azure` szerveren lévő adatbázison keresztül történik. Az alkalmazásban lehetőség van a játékosok törlésére is. 
 
 ## Hozott anyagok:
 
@@ -62,39 +62,8 @@ Scaffold-DbContext 'Server=tcp:sqlfc24.database.windows.net,1433;Initial Catalog
 ```
 
 * `3p` Teljes SQL tábla adatainak szolgáltatása API végponton keresztül
-``` csharp
-[HttpGet]
-[Route("/players/all")]
-public IActionResult getAllPlayers()
-{
-    Models.fc24Context context = new Models.fc24Context();
-    var players = from x in context.Players
-                  select new
-                  { 
-                      x.Name, x.Nation, x.Club, x.Position, x.Age, x.Overall, x.Pace, x.Shooting, x.Passing, x.Dribbling, 
-                      x.Defending, x.Physicality, x.AttWorkRate, x.DefWorkRate, x.PreferredFoot, x.WeakFoot, x.SkillMoves, x.Url
-                  };
-
-    return Ok(players);
-}
-```
-
 * `2p` SQL tábla egy választható rekordjának szolgáltatása API végponton keresztül
-``` csharp
-[HttpGet]
-[Route("leagues/{league}")]
-public ActionResult getLeage(string league)
-{
-    Models.fc24Context context = new Models.fc24Context();
-    var liga = from x in context.Teams
-               where x.League == league
-               select x.Name;
 
-    if (liga == null) return BadRequest("Nincs ilyen nevű liga");
-
-    return Ok(liga);
-}
-```
 Részösszeg: `8p`
 
 __Eddig:__ `19p`
@@ -102,49 +71,6 @@ __Eddig:__ `19p`
 ### Javascript
 
 * `2x5p` (pl: szöveg és kép) DOM feltöltése javascripttel (vizsgán írandó, NEM HOZOTT, aki ezt választja az a hozott anyagba nem rakhatja bele a js kódot amivel feltölti a tartalommal a DOM-ot, tehát ez az előre feltöltött hozott.js-ben nem lehet benne, vizsgán kell megírni egy vizsga.js fájlba.)
-
-``` javascript
- function listAllP() {
-     fetch('/players/all')
-         .then(response => response.json())
-         .then(data => kiíratás(data)
-         );
- }
-
- function kiíratás(lista) {
-     console.log(lista)
-     document.getElementById("main").innerHTML = "";
-     for (var i = 0; i < lista.length; i++) {
-         let újElem = document.createElement("div");
-         újElem.innerText = 
-         lista[i].name + 
-         " | Nation: " + lista[i].nation + 
-         " | Club: " + lista[i].club + 
-         " | Position(s): " + lista[i].position + 
-         " | Age: " + lista[i].age + 
-         " | Overall: " + lista[i].overall;
-         document.getElementById("main").appendChild(újElem);
-     }
- }
-```
-``` javascript
- function listL(liga) {
-     fetch(`/leagues/${liga}`)
-         .then(response => response.json())
-         .then(data => kiíratásLiga(data)
-         );
- }
-
- function kiíratásLiga(ligak) {
-     console.log(ligak)
-     document.getElementById("main").innerHTML = "";
-     for (var i = 0; i < ligak.length; i++) {
-         let újElem = document.createElement("div");
-         újElem.innerText = ligak[i];
-         document.getElementById("main").appendChild(újElem);
-     }
- }
-```
 
 Részösszeg: `10p`
 
@@ -159,11 +85,11 @@ __Eddig:__ `29p`
 * `2x2p` Olyan alkalmazás elrendezés, melyben gombok lenyomására UserControl-ok kerülnek elhelyezésre egy Panel vezérlőben, teljesen kitöltve azt. Minden gombra jár a pont, amennyiben az funkcionalitással rendelkező UserControl-t tölt be.
 * `2p` Anchorok alkalmazása: az alkalmazás egészében meg van oldva, hogy az ablak átméretezésekor ki legyen használva a rendelkezésre álló terület.
 * `2p` tábla adatainak megjelenítése DataGridView-ban
-* `2p` A tábla idegen kulcsot is tartalmaz, melynek megjelenítése DataGridViewComboBoxColumn-on keresztül történik.
-* `2p` Működő BindingSource
-* `2p` Adatok megjelenítése listboxban
-* `2x2p` Ha az adatok tetszőleges módszerrel, pl. TextBox-on keresztül szűrhetőek.
-* `2p` Sikeres törlés
+* `2p` A tábla idegen kulcsot is tartalmaz, melynek megjelenítése DataGridViewComboBoxColumn-on keresztül történik. (Összes játékos `userControl`-on)
+* `2p` Működő BindingSource (Összes játékos `userControl`-on)
+* `2p` Adatok megjelenítése listboxban (Játékosok csoportosítva `userControl`-on)
+* `2x2p` Ha az adatok tetszőleges módszerrel, pl. TextBox-on keresztül szűrhetőek. (Játékosok csoportosítva `userControl`-on)
+* `2p` Sikeres törlés (Játékosok csoportosítva `userControl`-on)
     * _A törlés csak akkor sikeres, amennyiben a felhasználó az ID oszlopot jelöli ki, máskülönben hibával lép ki az alkalmazás. __Ez lehetséges hiba__._
 * `2p` Megerősítéshez kötött törlés
 
